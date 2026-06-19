@@ -21,6 +21,7 @@ if str(_project_root) not in sys.path:
 
 import yaml  # noqa: E402 — after sys.path setup
 
+from daemon.classifier import start_watching, stop_watching  # noqa: E402
 from daemon.idle import is_idle  # noqa: E402
 from daemon.logger import init_db, write_event  # noqa: E402
 from daemon.watcher import get_active_window  # noqa: E402
@@ -77,6 +78,7 @@ def main() -> None:
 
     db_path = settings["db_path"]
     init_db(db_path)
+    start_watching()
 
     session_id = str(uuid.uuid4())
     poll_interval = settings["poll_interval_seconds"]
@@ -97,12 +99,12 @@ def main() -> None:
                     exe=window["exe"],
                     title=window["title"],
                     is_idle=idle,
-                    category=None,
                     session_id=session_id,
                 )
             except Exception:
                 logging.exception("Error during poll tick — continuing")
     finally:
+        stop_watching()
         _remove_pid(pid_path)
         logging.info("klokd daemon stopped cleanly")
 

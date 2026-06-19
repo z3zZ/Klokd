@@ -1,6 +1,8 @@
 import sqlite3
 from pathlib import Path
 
+from daemon.classifier import classify
+
 _CREATE_TABLE = """
 CREATE TABLE IF NOT EXISTS events (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,9 +31,9 @@ def write_event(
     exe: str,
     title: str,
     is_idle: bool,
-    category: str | None,
     session_id: str,
 ) -> None:
+    category = classify(exe, title)
     with _connect(db_path) as conn:
         conn.execute(
             "INSERT INTO events (timestamp, exe, title, is_idle, category, session_id) "
