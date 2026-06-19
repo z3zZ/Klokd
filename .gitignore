@@ -1,0 +1,33 @@
+# SQLite database (personal data — never commit)
+data/klokd.db
+data/klokd.db-shm
+data/klokd.db-wal
+data/daemon.pid
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Node / Electron
+node_modules/
+dist/
+out/
+build/
+.parcel-cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
