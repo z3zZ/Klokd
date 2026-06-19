@@ -24,12 +24,12 @@ def _load_file(path: Path) -> dict:
 
 
 def _reload(path: Path) -> None:
+    global _categories
     try:
         loaded = _load_file(path)
     except Exception:
         return
     with _lock:
-        global _categories
         _categories = loaded
 
 
