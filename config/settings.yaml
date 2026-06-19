@@ -1,0 +1,6 @@
+poll_interval_seconds: 5
+idle_threshold_seconds: 120
+db_path: data/klokd.db
+log_path: logs/daemon.log
+consent_given: false
+consent_timestamp: null
