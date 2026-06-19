@@ -27,6 +27,9 @@ build/
 # Spec file — keep private
 KLOKD_SPEC.md
 
+# Test screenshots
+scripts/screenshots/
+
 # Cert — never commit
 cert/
 
