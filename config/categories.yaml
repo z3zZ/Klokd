@@ -1,0 +1,67 @@
+categories:
+  productive:
+    label: "productive"
+    color: "#C8F135"
+    apps:
+      - code.exe
+      - devenv.exe
+      - windowsterminal.exe
+      - python.exe
+      - pythonw.exe
+      - node.exe
+      - figma.exe
+      - notion.exe
+      - obsidian.exe
+    title_patterns:
+      - "Visual Studio Code"
+      - "GitHub"
+      - "Stack Overflow"
+      - "localhost"
+      - "Claude"
+  gaming:
+    label: "gaming"
+    color: "#7C6FE8"
+    apps:
+      - steam.exe
+      - epicgameslauncher.exe
+      - battle.net.exe
+      - origin.exe
+    title_patterns:
+      - "- Steam"
+  social:
+    label: "social"
+    color: "#E8785A"
+    apps:
+      - discord.exe
+      - slack.exe
+      - teams.exe
+    title_patterns:
+      - "Twitter"
+      - "X.com"
+      - "Instagram"
+      - "Reddit"
+      - "WhatsApp"
+      - "Messenger"
+  entertainment:
+    label: "entertainment"
+    color: "#5AB4E8"
+    apps:
+      - vlc.exe
+      - spotify.exe
+      - mpv.exe
+    title_patterns:
+      - "YouTube"
+      - "Netflix"
+      - "Prime Video"
+      - "Twitch"
+      - "Disney+"
+  system:
+    label: "system"
+    color: "#333333"
+    apps:
+      - explorer.exe
+      - taskmgr.exe
+      - desktop
+      - unknown
+      - regedit.exe
+      - mmc.exe
