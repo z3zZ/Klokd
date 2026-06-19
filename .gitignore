@@ -21,6 +21,16 @@ dist/
 out/
 build/
 .parcel-cache/
+.vite/
+
+# Spec file — keep private
+KLOKD_SPEC.md
+
+# Cert — never commit
+cert/
+
+# PyInstaller
+*.spec
 
 # OS
 .DS_Store
