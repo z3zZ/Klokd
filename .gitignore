@@ -4,8 +4,9 @@ data/klokd.db-shm
 data/klokd.db-wal
 data/daemon.pid
 
-# Logs
-logs/
+# Logs — ignore content but track directory placeholder
+logs/*.log
+logs/*.log.*
 
 # Python
 __pycache__/
