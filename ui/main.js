@@ -373,7 +373,7 @@ ipcMain.handle('klokd:getWeekTrends', () => {
 })
 
 ipcMain.handle('klokd:getInsights', async () => {
-  try { return require('./insights').getInsights(DB_PATH) } catch { return [] }
+  try { return require('./insights').getInsights(dbAll) } catch { return [] }
 })
 
 ipcMain.handle('klokd:getAutoLaunchEnabled', async () => {
