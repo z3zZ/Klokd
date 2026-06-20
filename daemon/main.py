@@ -67,7 +67,14 @@ def _handle_signal(signum, frame):
 
 def main() -> None:
     settings = _load_settings()
-    _setup_logging(settings["log_path"])
+
+    if not settings.get("consent_given"):
+        sys.exit(0)
+
+    log_path = str(_project_root / settings["log_path"])
+    db_path = str(_project_root / settings["db_path"])
+
+    _setup_logging(log_path)
     logging.info("klokd daemon starting")
 
     pid_path = str(_project_root / "data" / "daemon.pid")
@@ -76,7 +83,6 @@ def main() -> None:
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)
 
-    db_path = settings["db_path"]
     init_db(db_path)
     start_watching()
 
