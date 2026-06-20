@@ -40,13 +40,6 @@ def _make_db(events: list[dict]) -> str:
     return f.name
 
 
-def _ts(days_ago: int = 0, hour: int = 10, minute: int = 0) -> str:
-    """UTC timestamp string N days ago at the given hour."""
-    dt = datetime.now(timezone.utc).replace(hour=hour, minute=minute, second=0, microsecond=0)
-    dt = dt - timedelta(days=days_ago)
-    return dt.strftime("%Y-%m-%d %H:%M:%S")
-
-
 def _productive_events(days_ago: int, start_hour: int, count: int, exe: str = "code.exe") -> list[dict]:
     """Generate `count` productive events spaced 5s apart from start_hour."""
     events = []
@@ -64,14 +57,11 @@ def cleanup_db(request):
     dbs: list[str] = []
     request.addfinalizer(lambda: [os.unlink(p) for p in dbs if os.path.exists(p)])
 
-    original_make = _make_db.__wrapped__ if hasattr(_make_db, "__wrapped__") else None
-
     def tracked_make(events):
         path = _make_db(events)
         dbs.append(path)
         return path
 
-    request.cls._make_db = staticmethod(tracked_make) if request.cls else None
     return tracked_make
 
 
@@ -390,7 +380,7 @@ class TestGetInsights:
                 events.append({"ts": ts, "exe": "app_a.exe" if i % 4 == 0 else "code.exe", "cat": "productive"})
         path = cleanup_db(events)
         result = engine.get_insights(path, max=1)
-        assert len(result) <= 1
+        assert len(result) == 1
 
     def test_results_sorted_by_priority(self, cleanup_db):
         events = []
