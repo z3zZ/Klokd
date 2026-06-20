@@ -90,18 +90,27 @@ def gaming_vs_average(db_path: str) -> dict | None:
                   AND is_idle = 0
             """).fetchone()["n"]
 
-            past_rows = conn.execute("""
+            past_gaming = conn.execute("""
                 SELECT COUNT(*) AS n FROM events
                 WHERE timestamp >= datetime('now', '-7 days')
                   AND date(timestamp) < date('now')
                   AND category = 'gaming'
                   AND is_idle = 0
             """).fetchone()["n"]
+
+            tracked_days = conn.execute("""
+                SELECT COUNT(DISTINCT date(timestamp)) AS d FROM events
+                WHERE timestamp >= datetime('now', '-7 days')
+                  AND date(timestamp) < date('now')
+            """).fetchone()["d"]
     except Exception:
         return None
 
+    if tracked_days == 0:
+        return None
+
     today_secs = today_cnt * POLL
-    avg_secs = (past_rows * POLL) / 7
+    avg_secs = (past_gaming * POLL) / tracked_days
     delta = today_secs - avg_secs
 
     if abs(delta) < MIN_DELTA:

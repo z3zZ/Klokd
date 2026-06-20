@@ -79,7 +79,7 @@ function peakFocusWindow(dbAll) {
       const bestScore = (counts[best] || 0) + (counts[best + 1] || 0)
       if (score > bestScore) best = h
     }
-    if (!(counts[best] || 0) + (counts[best + 1] || 0)) return null
+    if ((counts[best] || 0) + (counts[best + 1] || 0) === 0) return null
 
     return { text: validate(fill(TEMPLATES.peak_focus, { time_range: fmtRange(best) })), priority: 2 }
   } catch { return null }
@@ -98,9 +98,15 @@ function gamingVsAverage(dbAll) {
         AND date(timestamp) < date('now')
         AND category = 'gaming' AND is_idle = 0
     `)[0].n
+    const trackedDays = dbAll(`
+      SELECT COUNT(DISTINCT date(timestamp)) AS d FROM events
+      WHERE timestamp >= datetime('now', '-7 days')
+        AND date(timestamp) < date('now')
+    `)[0].d
 
+    if (!trackedDays) return null
     const todaySecs = todayCnt * POLL
-    const avgSecs = (pastCnt * POLL) / 7
+    const avgSecs = (pastCnt * POLL) / trackedDays
     const delta = todaySecs - avgSecs
     if (Math.abs(delta) < MIN_DELTA) return null
 
