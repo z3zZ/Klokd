@@ -17,10 +17,45 @@ _observer: Observer | None = None
 # Internal load / reload
 # ---------------------------------------------------------------------------
 
+_DEFAULT_CATEGORIES_YAML = """\
+categories:
+  productive:
+    label: "productive"
+    color: "#C8F135"
+    apps: [code.exe, devenv.exe, windowsterminal.exe, python.exe, pythonw.exe, node.exe]
+    title_patterns: ["Visual Studio Code", "GitHub", "Stack Overflow", "localhost"]
+  gaming:
+    label: "gaming"
+    color: "#7C6FE8"
+    apps: [steam.exe, epicgameslauncher.exe, battle.net.exe]
+    title_patterns: ["- Steam"]
+  social:
+    label: "social"
+    color: "#E8785A"
+    apps: [discord.exe, slack.exe, teams.exe]
+    title_patterns: [Twitter, Reddit, WhatsApp, Messenger]
+  entertainment:
+    label: "entertainment"
+    color: "#5AB4E8"
+    apps: [vlc.exe, spotify.exe]
+    title_patterns: [YouTube, Netflix, Twitch]
+  system:
+    label: "system"
+    color: "#333333"
+    apps: [explorer.exe, taskmgr.exe, desktop, unknown]
+    title_patterns: []
+"""
+
+
 def _load_file(path: Path) -> dict:
-    with open(path, encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
-    return data.get("categories", {})
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        return data.get("categories", {})
+    except FileNotFoundError:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(_DEFAULT_CATEGORIES_YAML, encoding="utf-8")
+        return yaml.safe_load(_DEFAULT_CATEGORIES_YAML).get("categories", {})
 
 
 def _reload(path: Path) -> None:

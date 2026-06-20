@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 from contextlib import closing
 from pathlib import Path
@@ -21,11 +22,12 @@ _CREATE_IDX_CAT = "CREATE INDEX IF NOT EXISTS idx_cat ON events(category);"
 
 def init_db(db_path: str) -> None:
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-    with closing(_connect(db_path, wal=True)) as conn:
-        conn.execute(_CREATE_TABLE)
-        conn.execute(_CREATE_IDX_TS)
-        conn.execute(_CREATE_IDX_CAT)
-        conn.commit()
+    try:
+        _create_schema(db_path)
+    except sqlite3.DatabaseError:
+        logging.warning("klokd.db corrupt — deleting and recreating schema")
+        Path(db_path).unlink(missing_ok=True)
+        _create_schema(db_path)
 
 
 def write_event(
@@ -42,6 +44,14 @@ def write_event(
             "VALUES (datetime('now'), ?, ?, ?, ?, ?)",
             (exe, title, int(is_idle), category, session_id),
         )
+        conn.commit()
+
+
+def _create_schema(db_path: str) -> None:
+    with closing(_connect(db_path, wal=True)) as conn:
+        conn.execute(_CREATE_TABLE)
+        conn.execute(_CREATE_IDX_TS)
+        conn.execute(_CREATE_IDX_CAT)
         conn.commit()
 
 

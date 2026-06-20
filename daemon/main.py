@@ -29,10 +29,25 @@ from daemon.watcher import get_active_window  # noqa: E402
 _SETTINGS_PATH = _project_root / "config" / "settings.yaml"
 _shutdown = False
 
+_DEFAULT_SETTINGS = {
+    "poll_interval_seconds": 5,
+    "idle_threshold_seconds": 120,
+    "db_path": "data/klokd.db",
+    "log_path": "logs/daemon.log",
+    "consent_given": False,
+    "consent_timestamp": None,
+}
+
 
 def _load_settings() -> dict:
-    with open(_SETTINGS_PATH, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    try:
+        with open(_SETTINGS_PATH, encoding="utf-8") as f:
+            return yaml.safe_load(f) or dict(_DEFAULT_SETTINGS)
+    except FileNotFoundError:
+        _SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(_SETTINGS_PATH, "w", encoding="utf-8") as f:
+            yaml.dump(dict(_DEFAULT_SETTINGS), f, allow_unicode=True)
+        return dict(_DEFAULT_SETTINGS)
 
 
 def _setup_logging(log_path: str) -> None:
