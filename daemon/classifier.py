@@ -74,7 +74,7 @@ def stop_watching() -> None:
 
 def classify(exe: str, title: str) -> str:
     with _lock:
-        cats = dict(_categories)
+        cats = _categories
 
     exe_lower = exe.lower()
     title_lower = title.lower()
