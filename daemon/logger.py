@@ -1,4 +1,5 @@
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 from daemon.classifier import classify
@@ -20,10 +21,11 @@ _CREATE_IDX_CAT = "CREATE INDEX IF NOT EXISTS idx_cat ON events(category);"
 
 def init_db(db_path: str) -> None:
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-    with _connect(db_path) as conn:
+    with closing(_connect(db_path, wal=True)) as conn:
         conn.execute(_CREATE_TABLE)
         conn.execute(_CREATE_IDX_TS)
         conn.execute(_CREATE_IDX_CAT)
+        conn.commit()
 
 
 def write_event(
@@ -34,15 +36,17 @@ def write_event(
     session_id: str,
 ) -> None:
     category = classify(exe, title)
-    with _connect(db_path) as conn:
+    with closing(_connect(db_path)) as conn:
         conn.execute(
             "INSERT INTO events (timestamp, exe, title, is_idle, category, session_id) "
             "VALUES (datetime('now'), ?, ?, ?, ?, ?)",
             (exe, title, int(is_idle), category, session_id),
         )
+        conn.commit()
 
 
-def _connect(db_path: str) -> sqlite3.Connection:
+def _connect(db_path: str, wal: bool = False) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode=WAL;")
+    if wal:
+        conn.execute("PRAGMA journal_mode=WAL;")
     return conn
