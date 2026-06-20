@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { formatTime } from '../utils.js'
 import Nav from './Nav.jsx'
+import { Wordmark, ClockDisplay } from './Header.jsx'
 
 export default function AppList({ onNavigate, currentView }) {
   const [apps, setApps] = useState([])
@@ -11,7 +12,6 @@ export default function AppList({ onNavigate, currentView }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--klokd-base)' }}>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 10px' }}>
         <Wordmark />
         <ClockDisplay />
@@ -49,26 +49,5 @@ export default function AppList({ onNavigate, currentView }) {
 
       <Nav current={currentView} onNavigate={onNavigate} />
     </div>
-  )
-}
-
-function Wordmark() {
-  return (
-    <span className="mono" style={{ fontWeight: 700, fontSize: 14, color: 'var(--klokd-text-primary)', letterSpacing: '-0.02em' }}>
-      kl<span style={{ color: 'var(--klokd-accent)' }}>o</span>kd
-    </span>
-  )
-}
-
-function ClockDisplay() {
-  const [time, setTime] = useState(new Date())
-  useEffect(() => {
-    const t = setInterval(() => setTime(new Date()), 1000)
-    return () => clearInterval(t)
-  }, [])
-  return (
-    <span className="mono" style={{ fontSize: 12, color: 'var(--klokd-text-muted)' }}>
-      {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
-    </span>
   )
 }

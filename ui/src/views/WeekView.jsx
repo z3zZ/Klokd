@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Nav from '../components/Nav.jsx'
+import { Wordmark } from '../components/Header.jsx'
 import { formatTime } from '../utils.js'
 
 export default function WeekView({ onNavigate, currentView }) {
@@ -19,9 +20,7 @@ export default function WeekView({ onNavigate, currentView }) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--klokd-base)' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 10px' }}>
-        <span className="mono" style={{ fontWeight: 700, fontSize: 14, color: 'var(--klokd-text-primary)', letterSpacing: '-0.02em' }}>
-          kl<span style={{ color: 'var(--klokd-accent)' }}>o</span>kd
-        </span>
+        <Wordmark />
         <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--klokd-text-muted)' }}>
           7 days
         </span>
