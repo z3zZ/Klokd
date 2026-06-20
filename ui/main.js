@@ -16,6 +16,7 @@ const { spawn } = require('child_process')
 const zlib = require('zlib')
 const AutoLaunch = require('electron-auto-launch')
 const yaml = require('js-yaml')
+const { getInsights } = require('./insights')
 
 // ---------------------------------------------------------------------------
 // Paths
@@ -373,7 +374,7 @@ ipcMain.handle('klokd:getWeekTrends', () => {
 })
 
 ipcMain.handle('klokd:getInsights', async () => {
-  try { return require('./insights').getInsights(dbAll) } catch { return [] }
+  try { return getInsights(dbAll) } catch { return [] }
 })
 
 ipcMain.handle('klokd:getAutoLaunchEnabled', async () => {
