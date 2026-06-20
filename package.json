@@ -4,6 +4,7 @@
   "description": "Your day, kloked.",
   "main": "ui/main.js",
   "scripts": {
+    "dev": "npm run build:ui && electron .",
     "start": "electron .",
     "build:ui": "vite build --base=./ ui",
     "dev:ui": "vite --base=./ ui",
