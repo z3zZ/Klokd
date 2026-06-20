@@ -18,6 +18,11 @@ const AutoLaunch = require('electron-auto-launch')
 const yaml = require('js-yaml')
 const { getInsights } = require('./insights')
 
+// Never show crash dialogs — log and continue.
+process.on('uncaughtException', (err) => {
+  console.error('[klokd] uncaught exception:', err.message)
+})
+
 // ---------------------------------------------------------------------------
 // Paths
 // ---------------------------------------------------------------------------
@@ -26,11 +31,26 @@ const ROOT = path.join(__dirname, '..')
 const SETTINGS_PATH = path.join(ROOT, 'config', 'settings.yaml')
 const CATEGORIES_PATH = path.join(ROOT, 'config', 'categories.yaml')
 
+const DEFAULT_SETTINGS = {
+  poll_interval_seconds: 5,
+  idle_threshold_seconds: 120,
+  db_path: 'data/klokd.db',
+  log_path: 'logs/daemon.log',
+  consent_given: false,
+  consent_timestamp: null,
+}
+
 function loadSettings() {
-  return yaml.load(fs.readFileSync(SETTINGS_PATH, 'utf8'))
+  try {
+    return yaml.load(fs.readFileSync(SETTINGS_PATH, 'utf8')) || { ...DEFAULT_SETTINGS }
+  } catch {
+    saveSettings({ ...DEFAULT_SETTINGS })
+    return { ...DEFAULT_SETTINGS }
+  }
 }
 
 function saveSettings(obj) {
+  fs.mkdirSync(path.dirname(SETTINGS_PATH), { recursive: true })
   fs.writeFileSync(SETTINGS_PATH, yaml.dump(obj), 'utf8')
 }
 
@@ -54,8 +74,13 @@ async function initSQL() {
 function openDb() {
   if (!SQL) throw new Error('SQL not initialised')
   if (!fs.existsSync(DB_PATH)) return new SQL.Database()
-  const buf = fs.readFileSync(DB_PATH)
-  return new SQL.Database(buf)
+  try {
+    return new SQL.Database(fs.readFileSync(DB_PATH))
+  } catch {
+    console.error('[klokd] DB corrupt — recreating')
+    try { fs.unlinkSync(DB_PATH) } catch {}
+    return new SQL.Database()
+  }
 }
 
 function dbAll(sql, params = []) {
@@ -361,6 +386,19 @@ const autoLauncher = new AutoLaunch({ name: 'Klokd' })
 // IPC handlers
 // ---------------------------------------------------------------------------
 
+ipcMain.handle('klokd:getConsentStatus', () => {
+  return { given: !!loadSettings().consent_given }
+})
+
+ipcMain.handle('klokd:setConsent', () => {
+  const s = loadSettings()
+  s.consent_given = true
+  s.consent_timestamp = new Date().toISOString()
+  saveSettings(s)
+  startDaemon()
+  return { ok: true }
+})
+
 ipcMain.handle('klokd:getTodaySummary', () => {
   try { return queryTodaySummary() } catch { return { categories: [], totalSeconds: 0, date: '' } }
 })
@@ -471,6 +509,13 @@ ipcMain.handle('klokd:deleteAllData', async () => {
       CREATE INDEX IF NOT EXISTS idx_ts ON events(timestamp);
       CREATE INDEX IF NOT EXISTS idx_cat ON events(category);
     `)
+    const s = loadSettings()
+    s.consent_given = false
+    s.consent_timestamp = null
+    saveSettings(s)
+    stopDaemon()
+    app.relaunch()
+    app.quit()
     return { ok: true }
   } catch (err) { return { ok: false, error: err.message } }
 })
